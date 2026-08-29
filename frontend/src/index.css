@@ -1,0 +1,169 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;0,900;1,600&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Playfair Display', 'Georgia', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+
+  /* Premium light theme surfaces */
+  --color-bg: #FAFAFA;
+  --color-card: #FFFFFF;
+  --color-fg: #171717;
+  --color-border: #E5E5E5;
+
+  /* Brand accent (with tonal steps for depth, still monochrome-orange) */
+  --color-accent: #F97316;
+  --color-accent-hover: #EA6A0C;
+  --color-accent-deep: #C2410C;
+  --color-accent-light: #FDBA74;
+
+  /* Semantic colors */
+  --color-sale: #DC2626;
+  --color-success: #16A34A;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Soft, warm ambient depth — a whisper of the brand color, not a loud glow */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(48vw 42vh at 85% -8%, rgba(249,115,22,0.07), transparent 60%),
+    radial-gradient(40vw 40vh at -5% 25%, rgba(249,115,22,0.05), transparent 60%),
+    var(--color-bg);
+}
+
+/* Faint dot grain for texture, barely-there */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.45;
+  background-image: radial-gradient(rgba(23,23,23,0.035) 1px, transparent 1px);
+  background-size: 26px 26px;
+}
+
+::selection {
+  background: rgba(249, 115, 22, 0.18);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(23,23,23,0.14); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(23,23,23,0.24); }
+
+.font-display { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.01em; }
+.font-mono { font-family: var(--font-mono); }
+
+/* Tonal orange gradient text — monochrome depth, not a rainbow */
+.grad-text {
+  background-image: linear-gradient(100deg, var(--color-accent-deep), var(--color-accent) 60%, var(--color-accent-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Homepage-only tri-color gradient text (green → blue → violet) — scoped to the hero, doesn't touch the brand accent used elsewhere */
+.hero-grad-text {
+  background-image: linear-gradient(100deg, #16A34A, #2563EB 50%, #7C3AED);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Card surface — flat white, hairline border, layered soft shadow for real depth */
+.glass {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 1px 2px rgba(23,23,23,0.04),
+    0 2px 6px rgba(23,23,23,0.03),
+    0 16px 40px -20px rgba(23,23,23,0.14);
+}
+
+.glass-hover {
+  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+.glass-hover:hover {
+  border-color: rgba(249,115,22,0.4);
+  transform: translateY(-4px);
+  box-shadow:
+    0 1px 2px rgba(23,23,23,0.04),
+    0 20px 40px -18px rgba(23,23,23,0.16),
+    0 0 0 1px rgba(249,115,22,0.06);
+}
+
+/* Primary CTA button — tonal gradient with a subtle sheen, feels premium not flat */
+.btn-grad {
+  position: relative;
+  background-image: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-deep) 100%);
+  color: #fff;
+  box-shadow: 0 6px 18px -6px rgba(249,115,22,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
+  transition: filter .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.btn-grad:hover { filter: brightness(1.06); transform: translateY(-2px); box-shadow: 0 12px 26px -8px rgba(249,115,22,0.55), inset 0 1px 0 rgba(255,255,255,0.25); }
+.btn-grad:active { transform: translateY(0); }
+.btn-grad:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.hairline { border: 1px solid var(--color-border); }
+
+.tag-hole {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid var(--color-border);
+  z-index: 2;
+}
+
+/* Soft accent ring — a decorative, understated flourish for hero/empty states */
+.accent-ring {
+  position: absolute;
+  border-radius: 999px;
+  border: 1px solid rgba(249,115,22,0.18);
+  pointer-events: none;
+}
+
+@keyframes floaty {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(2deg); }
+}
+.animate-floaty { animation: floaty 7s ease-in-out infinite; }
+
+@keyframes spin-slow {
+  from { transform: rotateY(0deg) rotateX(6deg); }
+  to { transform: rotateY(360deg) rotateX(6deg); }
+}
+.animate-spin-slow {
+  animation: spin-slow 18s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.fade-up {
+  animation: fadeUp .6s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}

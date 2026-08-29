@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: listing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: listing-service
+  template:
+    metadata:
+      labels:
+        app: listing-service
+    spec:
+      containers:
+        - name: listing-service
+          image: listing-service:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3002
+          env:
+            - name: PORT
+              value: "3002"
+            - name: DB_HOST
+              value: "postgres"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_PASSWORD
+              value: "postgres"
+            - name: DB_NAME
+              value: "listings_db"
+            - name: AWS_REGION
+              value: "us-east-1"
+            - name: AWS_ACCESS_KEY_ID
+              value: "your-access-key-id"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "your-secret-access-key"
+            - name: S3_BUCKET_NAME
+              value: "your-bucket-name"
+            - name: STRIPE_SECRET_KEY
+              value: "sk_test_your-test-secret-key"
+            - name: FRONTEND_URL
+              value: "http://localhost:8080"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3002
+            initialDelaySeconds: 5
+            periodSeconds: 10

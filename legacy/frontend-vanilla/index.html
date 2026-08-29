@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TAGG — Buy. Sell. Chat.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles-fancy.css">
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="#/browse" class="logo">
+      <span class="logo-text">TAGG</span>
+      <svg class="logo-hole" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+        <circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2.4"/>
+      </svg>
+    </a>
+
+    <nav class="main-nav" id="mainNav"></nav>
+
+    <button type="button" class="theme-toggle" id="themeToggle" title="Toggle dark mode" aria-label="Toggle dark mode">
+      <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/>
+        <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="1.5" x2="12" y2="4"/>
+          <line x1="12" y1="20" x2="12" y2="22.5"/>
+          <line x1="1.5" y1="12" x2="4" y2="12"/>
+          <line x1="20" y1="12" x2="22.5" y2="12"/>
+          <line x1="4.4" y1="4.4" x2="6.1" y2="6.1"/>
+          <line x1="17.9" y1="17.9" x2="19.6" y2="19.6"/>
+          <line x1="4.4" y1="19.6" x2="6.1" y2="17.9"/>
+          <line x1="17.9" y1="6.1" x2="19.6" y2="4.4"/>
+        </g>
+      </svg>
+      <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+        <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div class="topbar-auth" id="topbarAuth"></div>
+  </div>
+</header>
+
+<!-- ===== MAIN APP ===== -->
+<main id="app" class="app"></main>
+
+<!-- ===== TOAST ===== -->
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<!-- ===== TEMPLATES ===== -->
+
+<template id="tpl-choose-role">
+  <section class="view view-choose-role">
+    <div class="role-pick-wrap">
+      <h1 class="page-title" style="text-align:center;">How are you using <span class="grad-word">TAGG</span> today?</h1>
+      <p class="page-sub" style="text-align:center;">You can switch anytime from the top bar.</p>
+      <div class="role-cards">
+        <button class="role-card" data-role="buyer">
+          <div class="tag-hole" aria-hidden="true"></div>
+          <span class="role-card-label">Buyer</span>
+          <span class="role-card-desc">Browse <span class="grad-word">listings</span>, chat with sellers, and buy.</span>
+        </button>
+        <button class="role-card" data-role="seller">
+          <div class="tag-hole" aria-hidden="true"></div>
+          <span class="role-card-label">Seller</span>
+          <span class="role-card-desc">Post listings, chat with buyers, and manage sales.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-auth">
+  <section class="view view-auth">
+    <div class="auth-card">
+      <div class="tag-hole" aria-hidden="true"></div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Log in</button>
+        <button class="auth-tab" data-tab="register">Sign up</button>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <label>Email
+          <input type="email" name="email" required autocomplete="email">
+        </label>
+        <label>Password
+          <input type="password" name="password" required autocomplete="current-password">
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        <p class="auth-error" id="loginError"></p>
+      </form>
+
+      <form id="registerForm" class="auth-form hidden">
+        <label>Name
+          <input type="text" name="name" autocomplete="name">
+        </label>
+        <label>Email
+          <input type="email" name="email" required autocomplete="email">
+        </label>
+        <label>Password
+          <input type="password" name="password" required minlength="6" autocomplete="new-password">
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Create account</button>
+        <p class="auth-error" id="registerError"></p>
+      </form>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-browse">
+  <section class="view view-browse">
+    <div class="browse-header">
+      <h1 class="page-title">Browse listings</h1>
+      <p class="page-sub">Everything for sale, tagged and ready.</p>
+    </div>
+
+    <form id="filterForm" class="filter-strip">
+      <input type="text" name="q" placeholder="Search title or description">
+      <select name="category">
+        <option value="">All categories</option>
+        <option value="electronics">Electronics</option>
+        <option value="vehicles">Vehicles</option>
+        <option value="furniture">Furniture</option>
+        <option value="fashion">Fashion</option>
+        <option value="books">Books</option>
+        <option value="other">Other</option>
+      </select>
+      <input type="text" name="location" placeholder="Location">
+      <input type="number" name="minPrice" placeholder="Min ₹">
+      <input type="number" name="maxPrice" placeholder="Max ₹">
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div id="newArrivalsSection" class="new-arrivals-section hidden">
+      <h2 class="section-heading">🆕 New arrivals</h2>
+      <div id="newArrivalsGrid" class="listings-grid listings-grid-scroll"></div>
+    </div>
+
+    <div id="listingsGrid" class="listings-grid"></div>
+    <p id="browseEmpty" class="empty-state hidden">No listings match yet — be the first to <a href="#/sell">tag something for sale</a>.</p>
+  </section>
+</template>
+
+<template id="tpl-listing-card">
+  <div class="tag-card">
+    <a class="tag-card-link" href="#">
+      <div class="tag-hole" aria-hidden="true"></div>
+      <div class="tag-card-media">
+        <img class="tag-card-img" alt="">
+        <div class="tag-card-noimg">No photo</div>
+        <span class="tag-card-category"></span>
+        <span class="tag-card-new hidden">NEW</span>
+        <span class="tag-card-sold hidden">SOLD</span>
+      </div>
+      <div class="tag-card-body">
+        <h3 class="tag-card-title"></h3>
+        <p class="tag-card-location"></p>
+        <p class="tag-card-price"></p>
+      </div>
+    </a>
+    <div class="tag-card-quick-actions hidden">
+      <button type="button" class="quick-btn quick-cart" title="Add to cart">🛒</button>
+      <button type="button" class="quick-btn quick-wishlist" title="Save for later">☆</button>
+      <button type="button" class="quick-btn quick-message" title="Message seller">💬</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-sell">
+  <section class="view view-sell">
+    <div class="sell-card">
+      <div class="tag-hole" aria-hidden="true"></div>
+      <h1 class="page-title">Tag something for <span class="grad-word">sale</span></h1>
+      <p class="page-sub">Fill in the details — photo is optional.</p>
+
+      <form id="sellForm" class="sell-form">
+        <label>Title
+          <input type="text" name="title" required maxlength="120">
+        </label>
+        <label>Description
+          <textarea name="description" rows="4" maxlength="2000"></textarea>
+        </label>
+        <div class="sell-row">
+          <label>Price (₹)
+            <input type="number" name="price" min="0" step="1" required>
+          </label>
+          <label>Category
+            <select name="category">
+              <option value="">Choose</option>
+              <option value="electronics">Electronics</option>
+              <option value="vehicles">Vehicles</option>
+              <option value="furniture">Furniture</option>
+              <option value="fashion">Fashion</option>
+              <option value="books">Books</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <label>Location
+          <input type="text" name="location" maxlength="120">
+        </label>
+        <fieldset class="pickup-fieldset">
+          <legend>Pickup spots (optional)</legend>
+          <p class="field-hint">If buyers can collect this in person, list up to 3 spots you can meet at — they'll get to pick one when they choose "Pick up myself" at checkout.</p>
+          <label>Pickup spot 1
+            <input type="text" name="pickupLocation1" maxlength="255" placeholder="e.g. Sector 12 metro station">
+          </label>
+          <label>Pickup spot 2
+            <input type="text" name="pickupLocation2" maxlength="255">
+          </label>
+          <label>Pickup spot 3
+            <input type="text" name="pickupLocation3" maxlength="255">
+          </label>
+        </fieldset>
+        <label class="dropzone" id="dropzone">
+          <input type="file" name="image" accept="image/*" id="imageInput">
+          <span id="dropzoneLabel">Click to add a photo</span>
+          <img id="imagePreview" class="hidden">
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Post listing</button>
+        <p class="auth-error" id="sellError"></p>
+      </form>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-my-listings">
+  <section class="view view-my-listings">
+    <div class="browse-header">
+      <h1 class="page-title">My <span class="grad-word">listings</span></h1>
+      <p class="page-sub">Everything you've tagged for sale — active and sold.</p>
+    </div>
+    <div id="earningsStrip" class="stat-strip"></div>
+    <div id="myListingsGrid" class="listings-grid"></div>
+    <p id="myListingsEmpty" class="empty-state hidden">You haven't posted anything yet — <a href="#/sell">tag something for sale</a>.</p>
+  </section>
+</template>
+
+<template id="tpl-listing-detail">
+  <section class="view view-detail">
+    <div class="detail-grid">
+      <div class="detail-card">
+        <div class="tag-hole" aria-hidden="true"></div>
+        <div class="detail-media">
+          <img id="detailImg" alt="">
+          <div id="detailNoImg" class="tag-card-noimg">No photo</div>
+        </div>
+        <span id="detailCategory" class="tag-card-category"></span>
+        <h1 id="detailTitle" class="detail-title"></h1>
+        <p id="detailPrice" class="detail-price"></p>
+        <p id="detailLocation" class="detail-meta"></p>
+        <p id="detailDescription" class="detail-desc"></p>
+        <p id="detailOwnerNote" class="chat-login-prompt hidden">This is your own listing, so you'll always see seller tools here — Buying/Selling mode only changes navigation, not ownership.</p>
+        <div id="detailOwnerActions" class="detail-actions hidden">
+          <button id="markSoldBtn" class="btn btn-outline">Mark as sold</button>
+          <button id="deleteListingBtn" class="btn btn-outline btn-danger">Delete</button>
+        </div>
+        <div id="detailBuyerActions" class="detail-actions hidden">
+          <button id="buyNowBtn" class="btn btn-primary">Buy now</button>
+          <button id="addToCartBtn" class="btn btn-outline">Add to cart</button>
+          <button id="addToWishlistBtn" class="btn btn-outline">☆ Save for later</button>
+        </div>
+        <p id="detailBuyLoginPrompt" class="chat-login-prompt hidden">
+          <a href="#/auth">Log in</a> to buy this listing.
+        </p>
+        <p id="detailSoldBadge" class="sold-badge hidden">SOLD</p>
+      </div>
+
+      <div class="chat-card" id="chatCard" tabindex="-1">
+        <div class="tag-hole" aria-hidden="true"></div>
+        <h2 class="chat-title">Message the seller</h2>
+        <div id="chatMessages" class="chat-messages"></div>
+
+        <form id="offerForm" class="chat-offer-panel hidden">
+          <input type="number" id="offerAmountInput" min="1" placeholder="Your offer (₹)">
+          <button type="submit" class="btn btn-outline">Send offer</button>
+        </form>
+
+        <form id="chatForm" class="chat-form">
+          <input type="text" id="chatInput" placeholder="Say hello…" autocomplete="off">
+          <button type="button" id="offerToggleBtn" class="chat-offer-toggle hidden" title="Make an offer">💰</button>
+          <button type="submit" class="btn btn-primary">Send</button>
+        </form>
+        <p id="chatLoginPrompt" class="chat-login-prompt hidden">
+          <a href="#/auth">Log in</a> to message the seller.
+        </p>
+        <p id="chatOwnPrompt" class="chat-login-prompt hidden">This is your own listing.</p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-messages">
+  <section class="view view-messages">
+    <h1 class="page-title">Messages</h1>
+    <p class="page-sub">Your recent conversations.</p>
+    <div id="conversationsList" class="conversations-list"></div>
+    <p id="messagesEmpty" class="empty-state hidden">No conversations yet — go message a seller from a listing.</p>
+    <p id="messagesLoginPrompt" class="empty-state hidden"><a href="#/auth">Log in</a> to see your messages.</p>
+  </section>
+</template>
+
+<template id="tpl-cart">
+  <section class="view view-cart">
+    <div class="browse-header">
+      <h1 class="page-title">Your <span class="grad-word">cart</span></h1>
+      <p class="page-sub">Cart on the left, saved-for-later on the right — move items between them anytime.</p>
+    </div>
+
+    <div class="cart-layout">
+      <div class="cart-column cart-column-cart">
+        <h2 class="section-heading">🛒 Cart</h2>
+        <div id="cartItemsList" class="cart-items-list"></div>
+        <p id="cartEmpty" class="empty-state hidden">Your cart is empty — <a href="#/browse">browse listings</a> to add something.</p>
+        <div id="cartSummary" class="cart-summary hidden">
+          <div class="cart-summary-row">
+            <span>Total</span>
+            <span id="cartTotal" class="cart-total"></span>
+          </div>
+          <button id="cartCheckoutBtn" class="btn btn-primary btn-block">Checkout with Stripe</button>
+          <p id="cartCheckoutError" class="auth-error"></p>
+        </div>
+      </div>
+
+      <div class="cart-column cart-column-wishlist">
+        <h2 class="section-heading">☆ Save for later</h2>
+        <div id="wishlistItemsList" class="cart-items-list"></div>
+        <p id="wishlistEmpty" class="empty-state hidden">Nothing saved yet — tap ☆ on a listing to keep it here for later.</p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-checkout-details">
+  <section class="view view-checkout-details">
+    <div class="sell-card">
+      <div class="tag-hole" aria-hidden="true"></div>
+      <h1 class="page-title">Delivery &amp; <span class="grad-word">contact</span> details</h1>
+      <p class="page-sub">The seller needs this to get your item to you — you'll go to payment right after.</p>
+
+      <div id="checkoutSummary" class="checkout-summary"></div>
+
+      <form id="checkoutDetailsForm" class="sell-form">
+        <label>Full name
+          <input type="text" name="buyerName" required maxlength="120" autocomplete="name">
+        </label>
+        <label>Phone number
+          <input type="tel" name="buyerPhone" required maxlength="20" autocomplete="tel" placeholder="e.g. 98765 43210">
+        </label>
+
+        <div class="delivery-method-choice" id="deliveryMethodChoice">
+          <label class="radio-option">
+            <input type="radio" name="deliveryMethod" value="delivery" checked>
+            <span>Deliver to my location</span>
+          </label>
+          <label class="radio-option" id="pickupRadioOption">
+            <input type="radio" name="deliveryMethod" value="pickup">
+            <span>Pick up myself</span>
+          </label>
+        </div>
+        <label id="addressField">Delivery address
+          <textarea name="buyerAddress" rows="3" maxlength="500" placeholder="House / street, area, city, PIN code" autocomplete="street-address"></textarea>
+        </label>
+
+        <div id="pickupField" class="hidden">
+          <label>Pickup spot
+            <select name="pickupLocation" id="pickupLocationSelect"></select>
+          </label>
+          <p class="field-hint">Arrange the exact pickup time with the seller.</p>
+          <a href="#" id="messageSellerLink" class="btn btn-outline btn-block">Message the seller</a>
+        </div>
+
+        <button type="submit" id="checkoutDetailsSubmit" class="btn btn-primary btn-block">Continue to payment</button>
+        <p class="auth-error" id="checkoutDetailsError"></p>
+      </form>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-checkout-success">
+  <section class="view view-checkout-success">
+    <div class="auth-card" style="max-width:480px;">
+      <div class="tag-hole" aria-hidden="true"></div>
+      <div id="checkoutStatus">
+        <h1 class="page-title">Confirming payment…</h1>
+        <p class="page-sub">Hang tight, this only takes a second.</p>
+      </div>
+    </div>
+  </section>
+</template>
+
+<template id="tpl-orders">
+  <section class="view view-orders">
+    <h1 class="page-title">Your <span class="grad-word">orders</span></h1>
+    <p class="page-sub">Everything you've bought and sold.</p>
+
+    <h2 class="orders-subhead">Purchases</h2>
+    <div id="purchasesList" class="conversations-list"></div>
+    <p id="purchasesEmpty" class="empty-state hidden">Nothing bought yet — go find something on Browse.</p>
+
+    <h2 class="orders-subhead">Sales</h2>
+    <div id="salesList" class="conversations-list"></div>
+    <p id="salesEmpty" class="empty-state hidden">Nothing sold yet.</p>
+
+    <p id="ordersLoginPrompt" class="empty-state hidden"><a href="#/auth">Log in</a> to see your orders.</p>
+  </section>
+</template>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
